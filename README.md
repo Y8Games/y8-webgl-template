@@ -24,3 +24,5 @@
    var ChannelId = "YOUR_CHANNEL_ID";
    Set activateAFP to false (var activateAFP = false;)
 7) Set testAdsOn to false when the game is ready to go live (var testAdsOn = false;)
+8) Download the below example Unity source for your reference:  
+   [Unity Example Template with Ads](https://storage.y8.com/Gani/unity_webgl/unityAFPSample/uniy_example_template_with_ads.zip)
