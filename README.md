@@ -24,4 +24,3 @@
    var ChannelId = "YOUR_CHANNEL_ID";
    Set activateAFP to false (var activateAFP = false;)
 7) Set testAdsOn to false when the game is ready to go live (var testAdsOn = false;)
-8) You can download the example file for your reference.
