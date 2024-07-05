@@ -17,12 +17,13 @@
      - NoRewardedAdsTryLater() Call if no rewarded ads are available.
      - rewardAdsCanceled() Trigger if the user cancels the rewarded ad.
 4) Locate the responsiveWebGL template folder, Find gameBreakBeta.js and drag and drop it into the editor.
-5) If you have your own AdSense ID, replace it in the code 
+5) If you are an AFP partner, replace the AdSense ID in the code
    - var AdsenseId = "ca-pub-6129580795478709"; 
    - set activateAFP to true (var activateAFP = true;)
-6) If you don't have an AdSense ID, replace the Channel ID you received
+6) If you are not an AFP partner, replace the Channel ID
    var ChannelId = "YOUR_CHANNEL_ID";
    Set activateAFP to false (var activateAFP = false;)
+   Contact us if you want to become an AFP partner or if you need a Channel ID.
 7) Set testAdsOn to false when the game is ready to go live (var testAdsOn = false;)
 8) Download the below example Unity source for your reference:  
    [Unity Example Template with Ads](https://storage.y8.com/Gani/unity_webgl/unityAFPSample/uniy_example_template_with_ads.zip)
