@@ -21,8 +21,8 @@
    - var AdsenseId = "YOUR_ADSENSE_ID"; 
    - set activateAFP to true (var activateAFP = true;)
 6) If you are not an AFP partner, replace the Channel ID
-   var ChannelId = "YOUR_CHANNEL_ID";
-   Set activateAFP to false (var activateAFP = false;)
+   - var ChannelId = "YOUR_CHANNEL_ID";
+   - Set activateAFP to false (var activateAFP = false;)
    Contact us if you want to become an AFP partner or if you need a Channel ID.
 7) Set testAdsOn to false when the game is ready to go live (var testAdsOn = false;)
 8) Download the below example Unity source for your reference:  
