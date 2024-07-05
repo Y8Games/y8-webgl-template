@@ -18,7 +18,7 @@
      - rewardAdsCanceled() Trigger if the user cancels the rewarded ad.
 4) Locate the responsiveWebGL template folder, Find gameBreakBeta.js and drag and drop it into the editor.
 5) If you are an AFP partner, replace the AdSense ID in the code
-   - var AdsenseId = "ca-pub-6129580795478709"; 
+   - var AdsenseId = "YOUR_ADSENSE_ID"; 
    - set activateAFP to true (var activateAFP = true;)
 6) If you are not an AFP partner, replace the Channel ID
    var ChannelId = "YOUR_CHANNEL_ID";
