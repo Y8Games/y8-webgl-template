@@ -16,35 +16,35 @@ public class Main : MonoBehaviour
         
     }
 
-    public void showAd()
+    public void ShowAd()
     {
         Debug.Log("showAd");
         AfgbetaJs.InterstialAd();
     }
 
-    public void showRewardAd()
+    public void ShowRewardAd()
     {
         Debug.Log("showRewardAd");
         AfgbetaJs.rewardAds();
     }
 
-    public void pauseGame()
+    public void PauseGame()
     {
         Debug.Log("pauseGame");
     }
 
-    public void resumeGame()
+    public void ResumeGame()
     {
         Debug.Log("resumeGame");
     }
 
-    public void rewardAdsCompleted()
+    public void RewardAdsCompleted()
     {
         Debug.Log("rewardAdsCompleted");
         Debug.Log("This fucntion will triger if the user watched the ads completely, we should give the rewards here");
     }
 
-    public void rewardAdsCanceled()
+    public void RewardAdsCanceled()
     {
         Debug.Log("rewardAdsCanceled");
         Debug.Log("This fucntion will triger if the user cancel the ads before the ads completed");
