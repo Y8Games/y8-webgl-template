@@ -26,17 +26,17 @@ adConfig({
 });
 function showNextAd()
 {
-    console.log("showNextAd")
+    console.log("showNextAd");
     adBreak({
         type: 'next', // ad shows at start of next level
         name: 'next-game',
         beforeAd: () => {            
-            console.log("beforeAd")
-            passBeforeAdData()
+            console.log("beforeAd");
+            passBeforeAdData();
         }, // You may also want to mute thegame's sound.
         afterAd: () => {
-            console.log("afterAd")
-            adBreakDoneData()
+            console.log("afterAd");
+            adBreakDoneData();
         }, // resume the game flow.
         adBreakDone: (placementInfo) => {
             console.log("adBreak complete ");
@@ -55,11 +55,12 @@ function showReward()
         type: 'reward', // ad shows at start of next level
         name: 'rewarded Ad',
         beforeAd: () => {            
-            console.log("beforeAd")
-            passBeforeAdData()
+            console.log("beforeAd");
+            passBeforeAdData();
         }, // You may also want to mute thegame's sound.
         afterAd: () => {
-            console.log("afterAd")
+            console.log("afterAd");
+            adBreakDoneData();
         }, // resume the game flow.
         beforeReward: (showAdFn) => {console.log("beforeReward ")+showAdFn(0)},
         adDismissed: () => {console.log("adDismissed");cancelReward()},
