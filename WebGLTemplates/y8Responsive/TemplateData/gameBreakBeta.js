@@ -60,7 +60,6 @@ function showReward()
         }, // You may also want to mute thegame's sound.
         afterAd: () => {
             console.log("afterAd");
-            adBreakDoneData();
         }, // resume the game flow.
         beforeReward: (showAdFn) => {console.log("beforeReward ")+showAdFn(0)},
         adDismissed: () => {console.log("adDismissed");cancelReward()},
@@ -80,7 +79,6 @@ function noRewardAdsAvailable()
 {
     console.log("noRewardAdsAvailable");
     myGameInstance.SendMessage('GameObjectAds', 'NoRewardedAdsTryLater');
-    adBreakDoneData();
 }
 
 function cancelReward()
