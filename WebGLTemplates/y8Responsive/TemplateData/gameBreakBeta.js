@@ -77,22 +77,23 @@ function showReward()
 }
 function noRewardAdsAvailable()
 {
-    console.log("noRewardAdsAvailable")
+    console.log("noRewardAdsAvailable");
     myGameInstance.SendMessage('GameObjectAds', 'NoRewardedAdsTryLater');
+    adBreakDoneData();
 }
 
 function cancelReward()
 {
-    console.log("cancelReward")
-    myGameInstance.SendMessage('GameObjectAds', 'resumeGameRewarded');
+    console.log("cancelReward");
     myGameInstance.SendMessage('GameObjectAds', 'rewardAdsCanceled');
+    adBreakDoneData();
 }
 
 function gainReward()
 {
-    console.log("gainReward")
-    myGameInstance.SendMessage('GameObjectAds', 'resumeGameRewarded');
+    console.log("gainReward");
     myGameInstance.SendMessage('GameObjectAds', 'rewardAdsCompleted');
+    adBreakDoneData();
 }
 
 function passBeforeAdData() 
@@ -107,10 +108,10 @@ function adBreakDoneData()
 
 function createAFGScript()
 {
-	console.log("createAFGScript")
-	if(activateAFP == true){imported.setAttribute('data-ad-host', HostId)};
+    console.log("createAFGScript")
+    if(activateAFP == true){imported.setAttribute('data-ad-host', HostId)};
     imported.setAttribute('data-ad-client', AdsenseId);
-	if(activateAFP == false){imported.setAttribute('data-ad-channel', ChannelId)};
+    if(activateAFP == false){imported.setAttribute('data-ad-channel', ChannelId)};
     imported.setAttribute('data-ad-frequency-hint', adFrequency);
     if(testAdsOn == true){imported.setAttribute('data-adbreak-test', "on");}
     imported.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js';
