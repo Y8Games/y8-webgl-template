@@ -2,7 +2,7 @@ var imported = document.createElement('script');
 var HostId = "ca-host-pub-6129580795478709";
 
 var AdsenseId = "ca-pub-6129580795478709" ;
-// Enter your AdSense ID. If you don't have an AdSense ID, leave this blank and enter the Channel ID below.
+// Enter your AdSense ID. If you don't have an AdSense ID, leave this line unchanged and enter the Channel ID below.
 
 var ChannelId = "123456";
 // Enter your Channel ID if you don't have an AdSense ID.
