@@ -84,25 +84,25 @@ function noRewardAdsAvailable()
 function cancelReward()
 {
     console.log("cancelReward");
-    myGameInstance.SendMessage('GameObjectAds', 'rewardAdsCanceled');
+    myGameInstance.SendMessage('GameObjectAds', 'RewardAdsCanceled');
     adBreakDoneData();
 }
 
 function gainReward()
 {
     console.log("gainReward");
-    myGameInstance.SendMessage('GameObjectAds', 'rewardAdsCompleted');
+    myGameInstance.SendMessage('GameObjectAds', 'RewardAdsCompleted');
     adBreakDoneData();
 }
 
 function passBeforeAdData() 
 {
-    myGameInstance.SendMessage('GameObjectAds', 'pauseGame');
+    myGameInstance.SendMessage('GameObjectAds', 'PauseGame');
 }
 
 function adBreakDoneData()
 {
-    myGameInstance.SendMessage('GameObjectAds', 'resumeGame');
+    myGameInstance.SendMessage('GameObjectAds', 'ResumeGame');
 }
 
 function createAFGScript()
