@@ -44,6 +44,7 @@ function showNextAd()
             console.log(placementInfo.breakName);
             console.log(placementInfo.breakFormat);
             console.log(placementInfo.breakStatus);
+            adBreakDoneData();
         },
     });
 }
@@ -79,6 +80,7 @@ function noRewardAdsAvailable()
 {
     console.log("noRewardAdsAvailable");
     myGameInstance.SendMessage('GameObjectAds', 'NoRewardedAdsTryLater');
+    adBreakDoneData();
 }
 
 function cancelReward()
