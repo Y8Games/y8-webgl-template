@@ -1,124 +1,207 @@
-var imported = document.createElement('script');
-var HostId = "ca-host-pub-6129580795478709";
+var y8MinimalSdk = null;
+var adsReadyMinimalSdk = false;
+let adInFlight = false;
+let pausedByAd = false;
 
-var AdsenseId = "ca-pub-6129580795478709" ;
-// Enter your AdSense ID. If you don't have an AdSense ID, leave this line unchanged and enter the Channel ID below.
+		function initSdk(_appId, adsId, testMode)
+		{
+				console.log("initSdk ");
+				if(testMode == true){adsId = '249093'};
+				window.initMinimalSdk = function() {
+                        console.log("Y8 Minimal SDK");
+					if (window.y8 && typeof y8.sdk === 'function') {
+						console.log("Y8 Minimal SDK initialized successfully.");
+						y8MinimalSdk = y8.sdk()
+						window.y8MinimalSdkReference = y8MinimalSdk;
+						var appConfig = {
+							clientId: _appId, autoLogin: false
+						}
+						var adConfig = {
+							gameId: adsId,
+							test: testMode,
+							preloadAdBreaks: 'on',
+							sound: 'on',
+							onReady: () => {
+								adsReadyMinimalSdk = true;
+								console.log('onReady for ADS (minimal SDK)')
+							}
+						}
+						y8MinimalSdk.init(appConfig, adConfig)
+					} else {
+						console.error("Y8 Minimal SDK did not load as expected.");
+					}
+				};
 
-var ChannelId = "123456";
-// Enter your Channel ID if you don't have an AdSense ID.
+				(function(d, s, id){
+					var js, fjs = d.getElementsByTagName(s)[0];
+					if (d.getElementById(id)) { return; }
+					js = d.createElement(s);
+					js.id = id;
+					js.onload = initMinimalSdk;
+					js.src = "https://account.y8.com/minimal-sdk/sdk.js";
+					fjs.parentNode.insertBefore(js, fjs);
+				}(document, 'script', 'minimal-y8-jssdk'));
+		}
+		
+		
+		function ensureReady() {
+    if (!adsReadyMinimalSdk || !window.y8MinimalSdkReference || typeof window.y8MinimalSdkReference.showAd !== 'function') {
+        console.warn("Y8 SDK not ready yet. Wait for onReady before showing ads.");
+        return false;
+    }
+    return true;
+}
 
-var adFrequency = "180s";
+function ensureNoAdsRequestAlready() {
+    if (adInFlight) {
+        console.warn("Ad request ignored: another ad is in flight.");
+        return true;   // means "stop now"
+    }
+    return false;      // ok to proceed
+}
 
-var testAdsOn = true; 
-// Set to false when the game is ready to go live.
+function showGameAd(opts = {}) {
+    const type = (opts.type === 'reward') ? 'reward' : 'interstitial';
+    const name = opts.name || (type === 'reward' ? 'rewarded Ad' : 'interstitial Ad');
 
-var activateAFP = true;
-// Set to false if you are using the Channel ID instead of your AdSense ID.
+    if (!ensureReady())
+        return;
+    if (ensureNoAdsRequestAlready())
+        return;
 
-window.adsbygoogle = window.adsbygoogle || [];
-const adBreak = adConfig = function(o) {adsbygoogle.push(o);}
-adConfig({
-    preloadAdBreaks: 'on',
-    sound: 'on', // This game has sound
-    onReady: () => {
-        console.log("ready");
-    }, // Called when API has initialised and adBreak() is ready
-});
-function showNextAd()
+    adInFlight = true;
+    pausedByAd = false;
+    const pauseGameOnce = (from) => {
+        pausedByAd = true;
+        console.log("pauseGame() called from:", from);
+        pauseGame();
+    };
+
+    let resumed = false;
+    const resumeOnce = (from) => {
+        if (resumed)
+            return;
+        resumed = true;
+        adInFlight = false;
+        console.log("resumeGame() called from:", from);
+        if (pausedByAd)
+        {
+            pausedByAd = false;
+            resumeGame();
+        }
+    };
+
+    const beforeAd = () => {
+        console.log(`beforeAd (minimalSDK) - ${type}`);
+        pauseGameOnce("beforeAd");
+    };
+
+    const afterAd = () => {
+        console.log(`afterAd (minimalSDK) - ${type}`);
+        resumeOnce("afterAd");
+    };
+
+    const adBreakDone = (info) => {
+        console.log(`adBreakDone (minimalSDK) - ${type}`);
+        console.log(info);
+
+        if (type === 'reward') {
+            const status = info && info.breakStatus;
+            if (status === "frequencyCapped" || status === "noAdPreloaded" || status === "other") {
+                noRewardedAdsTryLater();
+            }
+        }
+        // Fallback if afterAd didn't fire
+        resumeOnce("adBreakDone");
+    };
+
+    // Reward-only hooks
+    const beforeReward = (showAdFn) => {
+        if (type !== 'reward')
+            return;
+        console.log("beforeReward (minimalSDK)");
+        showAdFn();
+    };
+
+    const adDismissed = () => {
+        if (type !== 'reward')
+            return;
+        console.log("adDismissed (minimalSDK)");
+        rewardAdsCanceled();
+    };
+
+    const adViewed = () => {
+        if (type !== 'reward')
+            return;
+        console.log("adViewed (minimalSDK)");
+        rewardAdsCompleted();
+    };
+
+    // Build the payload conditionally
+    const payload = {
+        beforeAd,
+        afterAd,
+        adBreakDone
+    };
+
+    if (type === 'reward') {
+        payload.type = 'reward';
+        payload.name = name;
+        payload.beforeReward = beforeReward;
+        payload.adDismissed = adDismissed;
+        payload.adViewed = adViewed;
+    }
+
+    window.y8MinimalSdkReference.showAd(payload)
+            .catch((e) => {
+                console.log(`showGameAd(${type}) - MINIMAL_SDK showAd error:`, e);
+                if (type === 'reward')
+                    noRewardedAdsTryLater();
+                resumeOnce("catch");
+            });
+}
+
+function nextAds()
 {
-    console.log("showNextAd");
-    adBreak({
-        type: 'next', // ad shows at start of next level
-        name: 'next-game',
-        beforeAd: () => {            
-            console.log("beforeAd");
-            passBeforeAdData();
-        }, // You may also want to mute thegame's sound.
-        afterAd: () => {
-            console.log("afterAd");
-            adBreakDoneData();
-        }, // resume the game flow.
-        adBreakDone: (placementInfo) => {
-            console.log("adBreak complete ");
-            console.log(placementInfo.breakType);
-            console.log(placementInfo.breakName);
-            console.log(placementInfo.breakFormat);
-            console.log(placementInfo.breakStatus);
-            adBreakDoneData();
-        },
-    });
+    showGameAd({type: 'interstitial'});
 }
 
 function showReward()
 {
-    console.log("showReward")
-    adBreak({
-        type: 'reward', // ad shows at start of next level
-        name: 'rewarded Ad',
-        beforeAd: () => {            
-            console.log("beforeAd");
-            passBeforeAdData();
-        }, // You may also want to mute thegame's sound.
-        afterAd: () => {
-            console.log("afterAd");
-        }, // resume the game flow.
-        beforeReward: (showAdFn) => {console.log("beforeReward ")+showAdFn(0)},
-        adDismissed: () => {console.log("adDismissed");cancelReward()},
-        adViewed: () => {console.log("adViewed");gainReward()},
-        adBreakDone: (placementInfo) => {
-            console.log("adBreak complete ");
-            console.log(placementInfo.breakType);
-            console.log(placementInfo.breakName);
-            console.log(placementInfo.breakFormat);
-            console.log(placementInfo.breakStatus);
-            if(placementInfo.breakStatus == "frequencyCapped"){noRewardAdsAvailable()};
-            if(placementInfo.breakStatus == "other"){noRewardAdsAvailable()};
-        },
-    });
+    showGameAd({type: 'reward'});
 }
-function noRewardAdsAvailable()
+
+function pauseGame()
 {
-    console.log("noRewardAdsAvailable");
+    //Pause Game Code
+    console.log("Pause Game");
+    myGameInstance.SendMessage('GameObjectAds', 'pauseGame');
+}
+
+function resumeGame()
+{
+    //Resume Game Code
+    console.log("Resume Game");
+    myGameInstance.SendMessage('GameObjectAds', 'resumeGame');
+}
+
+function rewardAdsCompleted()
+{
+    console.log("rewardAdsCompleted");
+    console.log("Function triggered when the ad is watched completely. Rewards should be given here.");
+    myGameInstance.SendMessage('GameObjectAds', 'rewardAdsCompleted');
+}
+
+function noRewardedAdsTryLater()
+{
+    console.log("noRewardedAdsTryLater");
+    console.log("No rewarded ad available right now. Ask user to try later.");
     myGameInstance.SendMessage('GameObjectAds', 'NoRewardedAdsTryLater');
-    adBreakDoneData();
 }
 
-function cancelReward()
+function rewardAdsCanceled()
 {
-    console.log("cancelReward");
-    myGameInstance.SendMessage('GameObjectAds', 'RewardAdsCanceled');
-    adBreakDoneData();
+    console.log("rewardAdsCanceled");
+     console.log("User dismissed/canceled the ad before completion.");
+     myGameInstance.SendMessage('GameObjectAds', 'rewardAdsCanceled');
 }
-
-function gainReward()
-{
-    console.log("gainReward");
-    myGameInstance.SendMessage('GameObjectAds', 'RewardAdsCompleted');
-    adBreakDoneData();
-}
-
-function passBeforeAdData() 
-{
-    myGameInstance.SendMessage('GameObjectAds', 'PauseGame');
-}
-
-function adBreakDoneData()
-{
-    myGameInstance.SendMessage('GameObjectAds', 'ResumeGame');
-}
-
-function createAFGScript()
-{
-    console.log("createAFGScript")
-    if(activateAFP == true){imported.setAttribute('data-ad-host', HostId)};
-    imported.setAttribute('data-ad-client', AdsenseId);
-    if(activateAFP == false){imported.setAttribute('data-ad-channel', ChannelId)};
-    imported.setAttribute('data-ad-frequency-hint', adFrequency);
-    if(testAdsOn == true){imported.setAttribute('data-adbreak-test', "on");}
-    imported.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js';
-    imported.setAttribute("type", "text/javascript");
-    imported.async = true;
-    document.head.appendChild(imported);
-}
-
-createAFGScript()
