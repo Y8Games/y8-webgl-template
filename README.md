@@ -30,7 +30,7 @@ Visit https://www.y8.com/studios
 4) Assign your App ID
    - In the Unity Inspector, select the GameObjectAds object.
    - Under the Y8 Minimal Ads (Script) component, find the field labeled “ENTER APP ID HERE”.
-   - Replace it with your actual App ID
+   - Replace it with your actual App ID (You can create or find your App ID by registering a new application here: https://account.y8.com/applications/)
 5) Assign your Ads ID
    - In the same Y8 Minimal Ads (Script) section, find the field labeled “ENTER ADS ID HERE”.
    - Enter your Game ID (also known as Ads ID).
