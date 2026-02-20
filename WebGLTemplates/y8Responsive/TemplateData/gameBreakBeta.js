@@ -38,7 +38,7 @@ let pausedByAd = false;
 					js = d.createElement(s);
 					js.id = id;
 					js.onload = initMinimalSdk;
-					js.src = "https://account.y8.com/minimal-sdk/sdk.js";
+					js.src = "https://cdn.y8.com/minimal-sdk/1-0/y8.js";
 					fjs.parentNode.insertBefore(js, fjs);
 				}(document, 'script', 'minimal-y8-jssdk'));
 		}
