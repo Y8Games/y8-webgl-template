@@ -1,4 +1,4 @@
-﻿var y8MinimalAds = {
+var y8MinimalAds = {
     InterstitialAd: function()
     {
         console.log("InterstitialAd");
@@ -9,12 +9,11 @@
         console.log("rewardAds");
         showReward();
     },
-    initAds: function(_appId, _adsId, testAds)
+    initAds: function(_appId, _adsId)
     {
         var appId = UTF8ToString(_appId);   // convert pointer → JS string
         var adsId = UTF8ToString(_adsId);
-        console.log("initAds " + _adsId);
-        initSdk(appId, adsId, testAds);
+        initSdk(appId, adsId);
     }
 };
 
