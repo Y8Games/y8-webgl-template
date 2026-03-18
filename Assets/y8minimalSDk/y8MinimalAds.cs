@@ -11,12 +11,10 @@ public class y8MinimalAds : MonoBehaviour
     public static extern void rewardAds();
 
     [DllImport("__Internal")]
-    public static extern void initAds(string _AppId, string _AdsId, bool _TestAds);
+    public static extern void initAds(string _AppId, string _AdsId);
 
     [Header("ENTER APP ID HERE")] public string AppId = "";
     [Header("ENTER ADS ID HERE")] public string AdsId = "";
-    [SerializeField]
-    private bool TestAds = false;
 
     void Start()
     {
@@ -53,7 +51,7 @@ public class y8MinimalAds : MonoBehaviour
         Debug.Log("init");
         Debug.Log("AppId "+ AppId);
         Debug.Log("AdsId"+ AdsId);
-        initAds(AppId, AdsId, TestAds);
+        initAds(AppId, AdsId);
 #else
         Debug.Log("Skipping initAds call in Unity Editor or non-WebGL build.");
 #endif
