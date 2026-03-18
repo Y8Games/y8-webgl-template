@@ -34,9 +34,6 @@ Visit https://www.y8.com/studios
 5) Assign your Ads ID
    - In the same Y8 Minimal Ads (Script) section, find the field labeled “ENTER ADS ID HERE”.
    - Enter your Game ID (also known as Ads ID).
-6) Enable Test Ads
-   - Check the Test Ads box to enable test mode and verify that ads are working.
-   - Once testing is complete and your game is ready for release, uncheck this option to use live ads.
 
 ## Demo Source
 - Download the below example Unity source for your reference:
