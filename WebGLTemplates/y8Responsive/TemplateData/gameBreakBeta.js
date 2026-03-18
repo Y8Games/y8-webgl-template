@@ -1,180 +1,188 @@
-var y8MinimalSdk = null;
-var adsReadyMinimalSdk = false;
-let adInFlight = false;
-let pausedByAd = false;
+let y8Sdk = null;
+let adsReady = false;
+let isGamePausedByAd = false;
+// Initialize SDK (call once from Unity)
+function initSdk(_appId, adsId) {
 
-		function initSdk(_appId, adsId, testMode)
-		{
-				console.log("initSdk ");
-				if(testMode == true){adsId = '249093'};
-				window.initMinimalSdk = function() {
-                        console.log("Y8 Minimal SDK");
-					if (window.y8 && typeof y8.sdk === 'function') {
-						console.log("Y8 Minimal SDK initialized successfully.");
-						y8MinimalSdk = y8.sdk()
-						window.y8MinimalSdkReference = y8MinimalSdk;
-						var appConfig = {
-							clientId: _appId, autoLogin: false
-						}
-						var adConfig = {
-							gameId: adsId,
-							test: testMode,
-							preloadAdBreaks: 'on',
-							sound: 'on',
-							onReady: () => {
-								adsReadyMinimalSdk = true;
-								console.log('onReady for ADS (minimal SDK)')
-							}
-						}
-						y8MinimalSdk.init(appConfig, adConfig)
-					} else {
-						console.error("Y8 Minimal SDK did not load as expected.");
-					}
-				};
+    console.log("initSdk");
+    window.initMinimalSdk = function () {
+        console.log("Y8 Minimal SDK loaded");
+        window.addEventListener("y8sdk.ready", function () {
+			if (y8Sdk) {
+				console.log("Y8 already initialized");
+				return;
+			}
+            if (window.y8 && typeof y8.sdk === "function") {
+                console.log("Y8 SDK ready");
+                y8Sdk = y8.sdk();
 
-				(function(d, s, id){
-					var js, fjs = d.getElementsByTagName(s)[0];
-					if (d.getElementById(id)) { return; }
-					js = d.createElement(s);
-					js.id = id;
-					js.onload = initMinimalSdk;
-					js.src = "https://cdn.y8.com/minimal-sdk/1-0/y8.js";
-					fjs.parentNode.insertBefore(js, fjs);
-				}(document, 'script', 'minimal-y8-jssdk'));
-		}
-		
-		
-		function ensureReady() {
-    if (!adsReadyMinimalSdk || !window.y8MinimalSdkReference || typeof window.y8MinimalSdkReference.showAd !== 'function') {
-        console.warn("Y8 SDK not ready yet. Wait for onReady before showing ads.");
-        return false;
-    }
-    return true;
-}
+                let appConfig = {
+                    appId: _appId,
+                    autoLogin: false
+                };
+				
+                let adConfig = {
+                    gameId: adsId,
+                    preloadAdBreaks: "auto",
+                    sound: "on",
+                    onReady: () => {
+						adsReady = true;
+                        console.log("Ads ready (minimal SDK)");
+                    }
+                };
 
-function ensureNoAdsRequestAlready() {
-    if (adInFlight) {
-        console.warn("Ad request ignored: another ad is in flight.");
-        return true;   // means "stop now"
-    }
-    return false;      // ok to proceed
-}
-
-function showGameAd(opts = {}) {
-    const type = (opts.type === 'reward') ? 'reward' : 'interstitial';
-    const name = opts.name || (type === 'reward' ? 'rewarded Ad' : 'interstitial Ad');
-
-    if (!ensureReady())
-        return;
-    if (ensureNoAdsRequestAlready())
-        return;
-
-    adInFlight = true;
-    pausedByAd = false;
-    const pauseGameOnce = (from) => {
-        pausedByAd = true;
-        console.log("pauseGame() called from:", from);
-        pauseGame();
-    };
-
-    let resumed = false;
-    const resumeOnce = (from) => {
-        if (resumed)
-            return;
-        resumed = true;
-        adInFlight = false;
-        console.log("resumeGame() called from:", from);
-        if (pausedByAd)
-        {
-            pausedByAd = false;
-            resumeGame();
-        }
-    };
-
-    const beforeAd = () => {
-        console.log(`beforeAd (minimalSDK) - ${type}`);
-        pauseGameOnce("beforeAd");
-    };
-
-    const afterAd = () => {
-        console.log(`afterAd (minimalSDK) - ${type}`);
-        resumeOnce("afterAd");
-    };
-
-    const adBreakDone = (info) => {
-        console.log(`adBreakDone (minimalSDK) - ${type}`);
-        console.log(info);
-
-        if (type === 'reward') {
-            const status = info && info.breakStatus;
-            if (status === "frequencyCapped" || status === "noAdPreloaded" || status === "other") {
-                noRewardedAdsTryLater();
+                y8Sdk.init(appConfig, adConfig);
+				
+				y8Sdk.onAuth((user, error) => {
+                    if (error) {
+                        console.log("Auth error", error);
+                        return;
+                    }
+                    console.log("User:", user);
+                });
+            } else {
+                console.error("Y8 SDK not available");
             }
+
+        }, { once: true });
+
+        if (window.y8 && window.y8.emitReadyEvent) {
+            window.y8.emitReadyEvent();
         }
-        // Fallback if afterAd didn't fire
-        resumeOnce("adBreakDone");
     };
 
-    // Reward-only hooks
-    const beforeReward = (showAdFn) => {
-        if (type !== 'reward')
+    (function (d, s, id) {
+
+        let js, fjs = d.getElementsByTagName(s)[0];
+
+        if (d.getElementById(id)) {
+            console.log("Y8 script already added");
+			if (window.y8) {
+				window.initMinimalSdk();
+			}
             return;
-        console.log("beforeReward (minimalSDK)");
-        showAdFn();
-    };
+        }
 
-    const adDismissed = () => {
-        if (type !== 'reward')
-            return;
-        console.log("adDismissed (minimalSDK)");
-        rewardAdsCanceled();
-    };
+        js = d.createElement(s);
+        js.id = id;
+        js.src = "https://cdn.y8.com/minimal-sdk/2-0/y8.min.js";
+        js.async = true;
+        js.onload = window.initMinimalSdk;
 
-    const adViewed = () => {
-        if (type !== 'reward')
-            return;
-        console.log("adViewed (minimalSDK)");
-        rewardAdsCompleted();
-    };
+        fjs.parentNode.insertBefore(js, fjs);
 
-    // Build the payload conditionally
-    const payload = {
-        beforeAd,
-        afterAd,
-        adBreakDone
-    };
+    }(document, "script", "minimal-y8-jssdk"));
+}
 
-    if (type === 'reward') {
-        payload.type = 'reward';
-        payload.name = name;
-        payload.beforeReward = beforeReward;
-        payload.adDismissed = adDismissed;
-        payload.adViewed = adViewed;
+function nextAds() {
+
+    if (!y8Sdk) {
+        console.log("SDK not ready");
+        return;
     }
 
-    window.y8MinimalSdkReference.showAd(payload)
-            .catch((e) => {
-                console.log(`showGameAd(${type}) - MINIMAL_SDK showAd error:`, e);
-                if (type === 'reward')
-                    noRewardedAdsTryLater();
-                resumeOnce("catch");
-            });
+    y8Sdk.showAd({
+        type: "start",
+        name: "start-game",
+
+        beforeAd: () => {
+            console.log("beforeAd");
+            pauseGame();
+        },
+
+        afterAd: () => {
+            console.log("afterAd");
+			resumeGame();
+        },
+
+        adDismissed: () => {
+            console.log("adDismissed");
+            unitySendMessage("OnAdSkipped");
+        },
+
+        adViewed: () => {
+            console.log("adViewed");
+        },
+
+        adBreakDone: (info) => {
+            console.log("adBreakDone", info);
+			resumeGame();
+        }
+
+    }).catch((e) => console.log("Ad error", e));
 }
 
-function nextAds()
-{
-    showGameAd({type: 'interstitial'});
-}
+function showReward() {
 
-function showReward()
-{
-    showGameAd({type: 'reward'});
+    if (!y8Sdk) {
+        console.log("SDK not ready");
+        return;
+    }
+
+
+    y8Sdk.showAd({
+
+        type: "reward",
+        name: "reward-ad",
+		
+		beforeAd: () => {
+            console.log("beforeAd");
+            pauseGame();
+        },
+
+        afterAd: () => {
+            console.log("afterAd");
+			resumeGame();
+        },
+		
+        beforeReward: function (showAdFn) {
+            console.log("Reward ad starting");
+            showAdFn();
+        },
+
+        adViewed: function () {
+            console.log("Reward completed");
+            rewardAdsCompleted();
+        },
+
+        adDismissed: function () {
+            console.log("Reward ad skipped");
+            rewardAdsCanceled();
+        },
+
+        adBreakDone: function (info) {
+            console.log("Ad break finished", info);
+			if (info && info.breakStatus) {
+				switch (info.breakStatus) {
+					case "frequencyCapped":
+					case "noAdPreloaded":
+					case "other":
+						noRewardedAdsTryLater();
+						break;
+
+					case "viewed":
+						// Already handled in adViewed()
+						break;
+
+					case "dismissed":
+						// Already handled in adDismissed()
+						break;
+				}
+			}
+			resumeGame();
+        }
+
+    }).catch(function (e) {
+        console.log("Ad error:", e);
+    });
 }
 
 function pauseGame()
 {
-    //Pause Game Code
+    //Pause Game Code	
     console.log("Pause Game");
+	if (isGamePausedByAd) return;
+	isGamePausedByAd = true;	
     myGameInstance.SendMessage('GameObjectAds', 'pauseGame');
 }
 
@@ -182,6 +190,8 @@ function resumeGame()
 {
     //Resume Game Code
     console.log("Resume Game");
+	if (!isGamePausedByAd) return;
+	isGamePausedByAd = false;
     myGameInstance.SendMessage('GameObjectAds', 'resumeGame');
 }
 
